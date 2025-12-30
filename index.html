@@ -3,206 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wishlist::Deploy | Amigo Invisible</title>
+    <title>Wishlist Presentation | Amigo Invisible</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg: #1a2c4e; /* Azul oscuro profundo */
+            --bg: #0f172a;
             --card-bg: #ffffff;
             --accent: #38bdf8;
             --text-dark: #1e293b;
-            --text-light: #f1f5f9;
             --btn-blue: #1d70b8;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
 
         body {
             background-color: var(--bg);
-            background-image: radial-gradient(circle at top right, #2563eb44, transparent), 
-                              radial-gradient(circle at bottom left, #1e293b, #0f172a);
-            color: var(--text-light);
-            padding: 20px;
-            min-height: 100vh;
+            background-image: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Evitamos scroll para que parezca una app */
         }
 
         header {
             text-align: center;
-            padding: 60px 0 40px;
+            padding: 30px 10px;
+            flex-shrink: 0;
         }
 
-        .gift-icon { font-size: 50px; margin-bottom: 10px; display: block; }
-        h1 { font-size: 3rem; margin-bottom: 5px; letter-spacing: -1px; }
-        .command { font-family: monospace; opacity: 0.9; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; }
+        h1 { font-size: 2rem; color: var(--accent); margin-bottom: 5px; }
+        .subtitle { font-family: monospace; font-size: 0.9rem; opacity: 0.7; }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            max-width: 1100px;
-            margin: 40px auto;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            color: var(--text-dark);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s ease;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        /* Contenedor de imagen ajustado para que no se corte ni se distorsione */
-        .img-wrapper {
-            background: #f8fafc;
-            border-radius: 8px;
-            height: 180px;
+        /* Contenedor del Carrusel */
+        .carousel-container {
+            position: relative;
+            flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
-            overflow: hidden;
+            perspective: 1000px;
+            padding: 20px;
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 30px;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateX(100px) scale(0.8);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100px) scale(0.8);
+        }
+
+        /* Contenido del Slide */
+        .img-wrapper {
+            width: 100%;
+            height: 250px;
+            background: #f8fafc;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
             border: 1px solid #e2e8f0;
         }
 
         .img-wrapper img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain; /* Esto hace que la imagen quepa entera sin distorsionar */
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: contain;
         }
 
         .badge {
-            display: inline-block;
-            background: #d1fae5;
-            color: #065f46;
-            font-size: 10px;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
             font-weight: bold;
-            padding: 2px 8px;
-            border-radius: 4px;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            align-self: flex-start;
+            margin-bottom: 15px;
         }
 
-        h3 { font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        h3 i { width: 18px; height: 18px; color: var(--btn-blue); }
-
-        .desc { font-size: 0.9rem; color: #475569; margin-bottom: 20px; line-height: 1.5; flex-grow: 1; }
+        h3 { font-size: 1.6rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .desc { font-size: 1.05rem; color: #475569; line-height: 1.6; flex-grow: 1; }
 
         .amazon-btn {
             background: var(--btn-blue);
             color: white;
             text-decoration: none;
             text-align: center;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 12px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            transition: background 0.2s;
         }
 
-        .amazon-btn:hover { background: #165a94; }
+        /* Controles */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        footer { text-align: center; padding: 40px; opacity: 0.6; font-size: 0.8rem; }
+        .nav-btn:hover { background: var(--accent); color: var(--bg); }
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+
+        .dot.active { background: var(--accent); width: 25px; border-radius: 5px; transition: 0.3s; }
 
         @media (max-width: 600px) {
-            h1 { font-size: 2.2rem; }
-            .grid { grid-template-columns: 1fr; }
+            .nav-btn { display: none; } /* En movil mejor deslizar o usar puntos */
+            .carousel-track { height: 500px; }
+            h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <span class="gift-icon">🎁</span>
-        <h1>Por pedir no se pierde nada</h1>
-        <p class="command">Puedes regalarme lo que quieras pero esto me haría un poco más feliz</p>
+        <h1>🎁 Wishlist Presenter</h1>
+        <p class="subtitle">Press arrows to navigate ideas</p>
     </header>
 
-    <div class="grid">
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://m.media-amazon.com/images/I/61lTb8K9dJL._AC_SX679_.jpg" alt="Hub USB">
+    <div class="carousel-container">
+        <button class="nav-btn prev-btn" onclick="changeSlide(-1)"><i data-lucide="chevron-left"></i></button>
+        
+        <div class="carousel-track" id="track">
+            <div class="slide active">
+                <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61lTb8K9dJL._AC_SX679_.jpg"></div>
+                <span class="badge">Hardware</span>
+                <h3><i data-lucide="usb"></i> Hub USB-C</h3>
+                <p class="desc">Porque mi portátil tiene menos entradas que un cine en pandemia. Imprescindible para mi setup.</p>
+                <a href="https://amzn.eu/d/5W5rs9s" target="_blank" class="amazon-btn">Ver Detalle</a>
             </div>
-            <span class="badge" style="background: #e0f2fe; color: #0369a1;">Hardware</span>
-            <h3><i data-lucide="usb"></i> Hub USB-C - HDMI</h3>
-            <p class="desc">Mi portátil tiene menos puertos que un router viejo. Necesito conectar el mundo.</p>
-            <a href=" https://amzn.eu/d/5W5rs9s" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
+
+            <div class="slide">
+                <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61m0qlGyjnL._AC_SX679_.jpg"></div>
+                <span class="badge">Kitchen</span>
+                <h3><i data-lucide="utensils"></i> Molinillo Pimienta</h3>
+                <p class="desc">Automatizar la cocina es el primer paso para dominar el mundo. Pimienta fresca sin esfuerzo manual.</p>
+                <a href="https://amzn.eu/d/bmiGi2J" target="_blank" class="amazon-btn">Ver Detalle</a>
+            </div>
+
+            <div class="slide">
+                <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/71YRTKYURvL._AC_SX679_.jpg"></div>
+                <span class="badge">Fuel</span>
+                <h3><i data-lucide="coffee"></i> Molinillo Café</h3>
+                <p class="desc">El café es el combustible del código. Si no está recién molido, el código no compila igual.</p>
+                <a href="https://amzn.eu/d/hW8S3pG" target="_blank" class="amazon-btn">Ver Detalle</a>
+            </div>
+
+            <div class="slide">
+                <div class="img-wrapper"><img src="https://thumb.pccomponentes.com/w-530-530/articles/1075/10754247/2192-mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-comprar.jpg"></div>
+                <span class="badge">Setup</span>
+                <h3><i data-lucide="monitor"></i> Brazo Doble</h3>
+                <p class="desc">Ergonomía ante todo. Para tener las pantallas flotando y espacio para el teclado (y el café).</p>
+                <a href="https://www.pccomponentes.com/mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-negro" target="_blank" class="amazon-btn">Ver Detalle</a>
+            </div>
+
+            <div class="slide">
+                <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61llBVIHPpL._AC_SX679_.jpg"></div>
+                <span class="badge">Setup</span>
+                <h3><i data-lucide="headphones"></i> Soporte Cascos</h3>
+                <p class="desc">Orden visual = Orden mental. Un sitio digno para colgar mis cascos tras el trabajo.</p>
+                <a href="https://amzn.eu/d/5u8K6e9" target="_blank" class="amazon-btn">Ver Detalle</a>
+            </div>
+
+            <div class="slide">
+                <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/81I5TKeM88L._AC_SY300_SX300_QL70_ML2_.jpg"></div>
+                <span class="badge">Bio</span>
+                <h3><i data-lucide="leaf"></i> Planta Interior</h3>
+                <p class="desc">Para purificar el aire y tener un ser vivo cerca que no me pida cambios en el código.</p>
+                <a href="https://amzn.eu/d/7zP3m8j" target="_blank" class="amazon-btn">Ver Detalle</a>
+            </div>
         </div>
 
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://m.media-amazon.com/images/I/61m0qlGyjnL._AC_SX679_.jpg" alt="Molinillo Pimienta">
-            </div>
-            <span class="badge">Lifestyle</span>
-            <h3><i data-lucide="utensils"></i> Molinillo Eléctrico</h3>
-            <p class="desc">Girar la muñeca cansa. Quiero pimienta recién molida con un botón.</p>
-            <a href=" https://amzn.eu/d/bmiGi2J" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://m.media-amazon.com/images/I/71YRTKYURvL._AC_SX679_.jpg" alt="Molinillo Cafe">
-            </div>
-            <span class="badge" style="background: #fef3c7; color: #92400e;">Coffee</span>
-            <h3><i data-lucide="coffee"></i> Molinillo de Café</h3>
-            <p class="desc">El café premolido no me gusta. Necesito granos frescos.</p>
-            <a href="https://www.amazon.es/Cecotec-Molinillo-Alimentos-Cuchillas-recubiertas/dp/B07BNP43PY/ref=sr_1_9?__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2HFXJ1HUJEGE4&dib=eyJ2IjoiMSJ9.Az4WNV8iBgzcJbvpF7Dw3OElhizDPAmwcmmIW83jHzBtGw58JGgTUOvKkvXX4CvVsTN6RSk0qmSJ1KWpW8w4jiR-MJkaWQQMAO8Ga_vMUZHQGzBJtUKkYOVBhiF7IO7BzwI-d6CUzZkmLRn_6xm_k_Dfd8uQymF9FESbVo4MTBRPiZfC6YVkWlsKMQOcJDfEe6rQDCS8xJwnANTF7iEGoJsoHSqZGx3H86oXUnRgGbDGpC5Cii5Z3PmELJ30Gf8bZdHzJEhxMIXhgYeu-QWCkCDw7V8xOKszeimvZ36PUTs.rUKrcKWAx_UvY01m2VOPlmSH5v7Nnt7khy0o_gQ1TGU&dib_tag=se&keywords=molinillo%2Bcafe&qid=1767081136&s=kitchen&sprefix=molinillo%2Bcag%2Ckitchen%2C279&sr=1-9&th=1" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://thumb.pccomponentes.com/w-530-530/articles/1075/10754247/2192-mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-comprar.jpg" alt="Brazo Monitor">
-            </div>
-            <span class="badge" style="background: #ede9fe; color: #5b21b6;">Setup</span>
-            <h3><i data-lucide="monitor"></i> Brazo Doble</h3>
-            <p class="desc">Para optimizar el espacio de trabajo y ver mis errores en alta definición.</p>
-            <a href="https://www.pccomponentes.com/mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-negro?utm_source=624709&utm_medium=afi&utm_campaign=www.google.com&sv1=affiliate&sv_campaign_id=624709&awc=20981_1767081279_333ed936517cdd22dfc5e75fbc2bb00d&utm_term=deeplink&utm_content=229331e154a8426c3ec7756fd0a4d857" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://m.media-amazon.com/images/I/61llBVIHPpL._AC_SX679_.jpg" alt="Soporte Cascos">
-            </div>
-            <span class="badge" style="background: #ede9fe; color: #5b21b6;">Setup</span>
-            <h3><i data-lucide="headphones"></i> Soporte Cascos</h3>
-            <p class="desc">Mis auriculares merecen un trono y no estar tirados encima de la torre.</p>
-            <a href="https://www.amazon.es/Alyvisun-Soporte-Auriculares-Ganchos-Escritorio/dp/B0C1VQJZQD/ref=sr_1_2_sspa?dib=eyJ2IjoiMSJ9.a47gTthd-LPorFhSR3AdzDW_uLvYfZKc2E85MSgcJlZxDn3CMXUnGSSsfId56S42_LLIm9cyiEwvbS49HMHWVAu884xN3JEWCQZkCgqLbGRuu6W-LuENmfQX7jcOt_ecr-VzH3MasdXw5o-gN6zhdiuZeSFyUU6bhM32zrPKXDFk5GuccN5ayL-5HoqKi76Nx49S49W-dlo53W4KI0e954c5I0GMS4-hUqI7smupV6tJeSraDct09I6PYgILrLY9CRxODVhQcAGd2JK3riOT4qU6c1aarszbh9UO0BvYnIU.nBfUareOFFzgozIxMjkkilzV-1GSeINEkkRmeQZnwn4&dib_tag=se&keywords=soporte%2Bcascos%2Bescritorio&qid=1767081329&sr=8-2-spons&aref=56Vc66LeuY&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="img-wrapper">
-                <img src="https://m.media-amazon.com/images/I/81I5TKeM88L._AC_SY300_SX300_QL70_ML2_.jpg" alt="Planta">
-            </div>
-            <span class="badge" style="background: #d1fae5; color: #065f46;">Bio</span>
-            <h3><i data-lucide="leaf"></i> Planta de Interior</h3>
-            <p class="desc">Para purificar el aire de la habitación y recordarme que la naturaleza existe.</p>
-            <a href="https://www.amazon.es/s?k=planta+adorno&i=kitchen&__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=32YMBFEU7DS5U&sprefix=planta+adorno%2Ckitchen%2C237&ref=nb_sb_noss_1" target="_blank" class="amazon-btn">
-                <i data-lucide="shopping-cart"></i> Ver en Amazon
-            </a>
-        </div>
+        <button class="nav-btn next-btn" onclick="changeSlide(1)"><i data-lucide="chevron-right"></i></button>
     </div>
 
+    <div class="dots" id="dots"></div>
+
     <footer>
-        <p>Built with &lt;/&gt; by el Dev del grupo</p>
+        <p>&lt; Slide to discover my wishes /&gt;</p>
     </footer>
 
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dots');
+
+        // Crear puntos
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateSlides() {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === currentSlide) {
+                    slide.classList.add('active');
+                } else if (i < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+            
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + slides.length) % slides.length;
+            updateSlides();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlides();
+        }
+
+        // Soporte para teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowRight") changeSlide(1);
+            if (e.key === "ArrowLeft") changeSlide(-1);
+        });
+    </script>
 </body>
 </html>
