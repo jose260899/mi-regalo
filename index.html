@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wishlist Presentation | Amigo Invisible</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wishlist Presentation | Swipe Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -23,34 +23,34 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Evitamos scroll para que parezca una app */
+            overflow: hidden;
+            touch-action: none; /* Evita el scroll nativo para mejorar el swipe */
         }
 
         header {
             text-align: center;
-            padding: 30px 10px;
+            padding: 20px 10px;
             flex-shrink: 0;
         }
 
-        h1 { font-size: 2rem; color: var(--accent); margin-bottom: 5px; }
-        .subtitle { font-family: monospace; font-size: 0.9rem; opacity: 0.7; }
+        h1 { font-size: 1.8rem; color: var(--accent); }
+        .subtitle { font-family: monospace; font-size: 0.8rem; opacity: 0.6; }
 
-        /* Contenedor del Carrusel */
         .carousel-container {
             position: relative;
             flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            perspective: 1000px;
-            padding: 20px;
+            padding: 15px;
         }
 
         .carousel-track {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            height: 550px;
+            max-width: 400px;
+            height: 100%;
+            max-height: 550px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -62,15 +62,15 @@
             height: 100%;
             background: var(--card-bg);
             border-radius: 24px;
-            padding: 30px;
+            padding: 25px;
             color: var(--text-dark);
             display: flex;
             flex-direction: column;
             opacity: 0;
-            transform: translateX(100px) scale(0.8);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
         .slide.active {
@@ -82,19 +82,18 @@
 
         .slide.prev {
             opacity: 0;
-            transform: translateX(-100px) scale(0.8);
+            transform: translateX(-100%) scale(0.9);
         }
 
-        /* Contenido del Slide */
         .img-wrapper {
             width: 100%;
-            height: 250px;
+            height: 45%; /* Altura relativa para que quepa en cualquier móvil */
             background: #f8fafc;
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 1px solid #e2e8f0;
         }
 
@@ -107,136 +106,123 @@
         .badge {
             background: #e0f2fe;
             color: #0369a1;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
             font-weight: bold;
             text-transform: uppercase;
             align-self: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
-        h3 { font-size: 1.6rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .desc { font-size: 1.05rem; color: #475569; line-height: 1.6; flex-grow: 1; }
+        h3 { font-size: 1.4rem; margin-bottom: 10px; color: #0f172a; }
+        .desc { font-size: 0.95rem; color: #475569; line-height: 1.4; flex-grow: 1; overflow-y: auto; }
 
         .amazon-btn {
             background: var(--btn-blue);
             color: white;
             text-decoration: none;
             text-align: center;
-            padding: 15px;
+            padding: 14px;
             border-radius: 12px;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin-top: 15px;
         }
-
-        /* Controles */
-        .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 100;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .nav-btn:hover { background: var(--accent); color: var(--bg); }
-        .prev-btn { left: 20px; }
-        .next-btn { right: 20px; }
 
         .dots {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             padding: 20px;
+            flex-shrink: 0;
         }
 
         .dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
-            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .dot.active { background: var(--accent); width: 25px; border-radius: 5px; transition: 0.3s; }
+        .dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
 
-        @media (max-width: 600px) {
-            .nav-btn { display: none; } /* En movil mejor deslizar o usar puntos */
-            .carousel-track { height: 500px; }
-            h1 { font-size: 1.5rem; }
+        /* Flechas ocultas en móvil, visibles en desktop */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .nav-btn { display: flex; align-items: center; justify-content: center; }
+            .prev-btn { left: 10px; }
+            .next-btn { right: 10px; }
+            h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🎁 Wishlist Presenter</h1>
-        <p class="subtitle">Press arrows to navigate ideas</p>
+        <h1>🎁 Mi Wishlist</h1>
+        <p class="subtitle">Desliza para ver mis ideas</p>
     </header>
 
-    <div class="carousel-container">
+    <div class="carousel-container" id="swipe-area">
         <button class="nav-btn prev-btn" onclick="changeSlide(-1)"><i data-lucide="chevron-left"></i></button>
         
-        <div class="carousel-track" id="track">
+        <div class="carousel-track">
             <div class="slide active">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61lTb8K9dJL._AC_SX679_.jpg"></div>
                 <span class="badge">Hardware</span>
-                <h3><i data-lucide="usb"></i> Hub USB-C</h3>
-                <p class="desc">Porque mi portátil tiene menos entradas que un cine en pandemia. Imprescindible para mi setup.</p>
-                <a href="https://amzn.eu/d/5W5rs9s" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <h3>Hub USB-C</h3>
+                <p class="desc">Para conectar el monitor, teclado y mil cosas más. ¡Me quedo sin puertos!</p>
+                <a href="https://amzn.eu/d/5W5rs9s" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
-
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61m0qlGyjnL._AC_SX679_.jpg"></div>
-                <span class="badge">Kitchen</span>
-                <h3><i data-lucide="utensils"></i> Molinillo Pimienta</h3>
-                <p class="desc">Automatizar la cocina es el primer paso para dominar el mundo. Pimienta fresca sin esfuerzo manual.</p>
-                <a href="https://amzn.eu/d/bmiGi2J" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <span class="badge">Cocina</span>
+                <h3>Molinillo Pimienta</h3>
+                <p class="desc">Tecnología aplicada a la cena. Adiós a girar la muñeca como un cavernícola.</p>
+                <a href="https://amzn.eu/d/bmiGi2J" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
-
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/71YRTKYURvL._AC_SX679_.jpg"></div>
-                <span class="badge">Fuel</span>
-                <h3><i data-lucide="coffee"></i> Molinillo Café</h3>
-                <p class="desc">El café es el combustible del código. Si no está recién molido, el código no compila igual.</p>
-                <a href="https://amzn.eu/d/hW8S3pG" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <span class="badge">Café</span>
+                <h3>Molinillo Café</h3>
+                <p class="desc">El olor a café recién molido por la mañana mejora mi productividad un 200%.</p>
+                <a href="https://amzn.eu/d/hW8S3pG" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
-
             <div class="slide">
                 <div class="img-wrapper"><img src="https://thumb.pccomponentes.com/w-530-530/articles/1075/10754247/2192-mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-comprar.jpg"></div>
                 <span class="badge">Setup</span>
-                <h3><i data-lucide="monitor"></i> Brazo Doble</h3>
-                <p class="desc">Ergonomía ante todo. Para tener las pantallas flotando y espacio para el teclado (y el café).</p>
-                <a href="https://www.pccomponentes.com/mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-negro" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <h3>Brazo Doble</h3>
+                <p class="desc">Para liberar espacio en la mesa y tener un setup de auténtico pro.</p>
+                <a href="https://www.pccomponentes.com/mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-negro" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
-
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61llBVIHPpL._AC_SX679_.jpg"></div>
-                <span class="badge">Setup</span>
-                <h3><i data-lucide="headphones"></i> Soporte Cascos</h3>
-                <p class="desc">Orden visual = Orden mental. Un sitio digno para colgar mis cascos tras el trabajo.</p>
-                <a href="https://amzn.eu/d/5u8K6e9" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <span class="badge">Orden</span>
+                <h3>Soporte Cascos</h3>
+                <p class="desc">Un lugar seguro para mis auriculares. Elegante y práctico.</p>
+                <a href="https://amzn.eu/d/5u8K6e9" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
-
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/81I5TKeM88L._AC_SY300_SX300_QL70_ML2_.jpg"></div>
-                <span class="badge">Bio</span>
-                <h3><i data-lucide="leaf"></i> Planta Interior</h3>
-                <p class="desc">Para purificar el aire y tener un ser vivo cerca que no me pida cambios en el código.</p>
-                <a href="https://amzn.eu/d/7zP3m8j" target="_blank" class="amazon-btn">Ver Detalle</a>
+                <span class="badge">Decoración</span>
+                <h3>Planta Interior</h3>
+                <p class="desc">Un poco de verde para purificar el ambiente entre tanto cable.</p>
+                <a href="https://amzn.eu/d/7zP3m8j" target="_blank" class="amazon-btn">Ver Producto</a>
             </div>
         </div>
 
@@ -245,35 +231,26 @@
 
     <div class="dots" id="dots"></div>
 
-    <footer>
-        <p>&lt; Slide to discover my wishes /&gt;</p>
-    </footer>
-
     <script>
         lucide.createIcons();
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const dotsContainer = document.getElementById('dots');
 
-        // Crear puntos
+        // Lógica de puntos
         slides.forEach((_, i) => {
             const dot = document.createElement('div');
             dot.classList.add('dot');
             if (i === 0) dot.classList.add('active');
-            dot.onclick = () => goToSlide(i);
             dotsContainer.appendChild(dot);
         });
 
         function updateSlides() {
             slides.forEach((slide, i) => {
                 slide.classList.remove('active', 'prev');
-                if (i === currentSlide) {
-                    slide.classList.add('active');
-                } else if (i < currentSlide) {
-                    slide.classList.add('prev');
-                }
+                if (i === currentSlide) slide.classList.add('active');
+                else if (i < currentSlide) slide.classList.add('prev');
             });
-            
             document.querySelectorAll('.dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentSlide);
             });
@@ -284,13 +261,27 @@
             updateSlides();
         }
 
-        function goToSlide(index) {
-            currentSlide = index;
-            updateSlides();
+        // --- LÓGICA DE SWIPE (DESLIZAR) ---
+        let touchstartX = 0;
+        let touchendX = 0;
+        const area = document.getElementById('swipe-area');
+
+        area.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, false);
+
+        area.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+
+        function handleGesture() {
+            if (touchendX < touchstartX - 50) changeSlide(1);  // Deslizar izquierda -> Siguiente
+            if (touchendX > touchstartX + 50) changeSlide(-1); // Deslizar derecha -> Anterior
         }
 
-        // Soporte para teclado
-        document.addEventListener('keydown', (e) => {
+        // Teclado
+        document.addEventListener('keydown', e => {
             if (e.key === "ArrowRight") changeSlide(1);
             if (e.key === "ArrowLeft") changeSlide(-1);
         });
