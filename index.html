@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Wishlist Presentation | Amigo Invisible</title>
+    <title>Top Secret | Amigo Invisible</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -23,18 +23,64 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
-            overflow-y: auto;
-            /* Permite scroll vertical nativo, pero deja que controlemos el horizontal */
+            overflow: hidden;
             touch-action: pan-y;
         }
 
-        header {
+        /* --- PANTALLA DE BIENVENIDA --- */
+        #splash {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s;
             text-align: center;
-            padding: 40px 20px 20px;
-            flex-shrink: 0;
+            padding: 20px;
         }
 
+        #splash.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .terminal-box {
+            background: #000;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .typing {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .start-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .start-btn:active { transform: scale(0.95); }
+
+        /* --- CARRUSEL (Resto de estilos) --- */
+        header { text-align: center; padding: 40px 20px 20px; flex-shrink: 0; }
         h1 { font-size: 2rem; color: var(--accent); margin-bottom: 5px; }
         .subtitle { font-family: monospace; font-size: 0.9rem; opacity: 0.7; }
 
@@ -45,7 +91,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            min-height: 550px;
+            min-height: 500px;
         }
 
         .carousel-track {
@@ -75,17 +121,8 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        .slide.active {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-            pointer-events: auto;
-            z-index: 10;
-        }
-
-        .slide.prev {
-            opacity: 0;
-            transform: translateX(-100px) scale(0.85);
-        }
+        .slide.active { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; z-index: 10; }
+        .slide.prev { opacity: 0; transform: translateX(-100px) scale(0.85); }
 
         .img-wrapper {
             width: 100%;
@@ -99,75 +136,29 @@
             border: 1px solid #e2e8f0;
         }
 
-        .img-wrapper img {
-            max-width: 85%;
-            max-height: 85%;
-            object-fit: contain;
-        }
+        .img-wrapper img { max-width: 85%; max-height: 85%; object-fit: contain; }
 
         .badge {
-            background: #e0f2fe;
-            color: #0369a1;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            align-self: flex-start;
-            margin-bottom: 12px;
+            background: #e0f2fe; color: #0369a1; padding: 5px 12px; border-radius: 8px;
+            font-size: 0.7rem; font-weight: bold; text-transform: uppercase; align-self: flex-start; margin-bottom: 12px;
         }
 
         h3 { font-size: 1.5rem; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-dark); }
         .desc { font-size: 1rem; color: #475569; line-height: 1.5; flex-grow: 1; }
 
         .amazon-btn {
-            background: var(--btn-blue);
-            color: white;
-            text-decoration: none;
-            text-align: center;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
+            background: var(--btn-blue); color: white; text-decoration: none; text-align: center;
+            padding: 14px; border-radius: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px;
         }
 
         .nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 100;
-            display: none; /* Se activa en desktop */
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; z-index: 100; display: none;
         }
 
-        .dots {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            padding: 30px;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            transition: 0.3s;
-        }
-
+        .dots { display: flex; justify-content: center; gap: 10px; padding: 30px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: 0.3s; }
         .dot.active { background: var(--accent); width: 25px; border-radius: 5px; }
-
-        footer { text-align: center; padding: 20px; opacity: 0.5; font-size: 0.8rem; font-family: monospace; }
 
         @media (min-width: 768px) {
             .nav-btn { display: flex; align-items: center; justify-content: center; }
@@ -177,15 +168,22 @@
 
         @media (max-width: 480px) {
             .carousel-track { height: 480px; }
-            h1 { font-size: 1.6rem; }
         }
     </style>
 </head>
 <body>
 
+    <div id="splash">
+        <div class="terminal-box">
+            <span class="typing" id="typewriter">Cargando dependencias de mi felicidad...</span>
+            <button class="start-btn" onclick="startShow()">¿ESTÁIS LISTOS?</button>
+        </div>
+        <p style="margin-top: 20px; opacity: 0.5; font-size: 0.8rem;">(Si no estás listo, pulsa igual)</p>
+    </div>
+
     <header>
-        <h1>🎁 Mi Wishlist</h1>
-        <p class="subtitle">Desliza para descubrir</p>
+        <h1>🎁 Amigo Invisible</h1>
+        <p class="subtitle">Desliza para descubrir mis deseos</p>
     </header>
 
     <div class="carousel-container" id="swipe-area">
@@ -196,7 +194,7 @@
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61lTb8K9dJL._AC_SX679_.jpg"></div>
                 <span class="badge">Hardware</span>
                 <h3>Hub USB-C</h3>
-                <p class="desc">Para conectar el monitor, teclado y mil cosas más. ¡Me faltan puertos por todos lados!</p>
+                <p class="desc">Porque mi portátil tiene menos entradas que un cine vacío. ¡Necesito puertos!</p>
                 <a href="https://amzn.eu/d/5W5rs9s" target="_blank" class="amazon-btn">Ver en Amazon</a>
             </div>
 
@@ -204,23 +202,23 @@
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61m0qlGyjnL._AC_SX679_.jpg"></div>
                 <span class="badge">Cocina</span>
                 <h3>Molinillo Pimienta</h3>
-                <p class="desc">Moler pimienta a mano es para gente que no conoce la automatización. ¡A un solo clic!</p>
+                <p class="desc">Automatizar la pimienta es el primer paso para ser un senior dev de la cocina.</p>
                 <a href="https://amzn.eu/d/bmiGi2J" target="_blank" class="amazon-btn">Ver en Amazon</a>
             </div>
 
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/71YRTKYURvL._AC_SX679_.jpg"></div>
-                <span class="badge">Café</span>
+                <span class="badge">Fuel</span>
                 <h3>Molinillo Café</h3>
-                <p class="desc">El café recién molido es el combustible de mi día a día.</p>
-                <a href="https://www.amazon.es/Cecotec-Molinillo-Alimentos-Cuchillas-recubiertas/dp/B07BNP43PY/ref=sr_1_4_sspa?crid=30RCU9T7YXYXC&dib=eyJ2IjoiMSJ9.wzofpv9PTA8ebBqSrAgSH3tG47yv3VCBdOqdOpxUlxhtGw58JGgTUOvKkvXX4CvVsTN6RSk0qmSJ1KWpW8w4jqPPGnRSVvrGC2Nq8FBiJux5Jy5PKNZ5CAxO-e6WmWxXVamTTyOysStuDJRwmwZIVFnjirSVg3q_lMZOjopI0KzxBdOPgbl_IvqjQhGDj7yb_VvVHnKWBQjuSdL5uL-pjUz5ef5EKRY-BWHhsPRnHDQXogdBCVfR1_frUuGLOdwri3gk-F0DukvrjJEK0eMHj_KUC7zxUH5Q3mhONB1WDTI.YEaubLsdA0p7D8YR0GSxATM8k7QgRJ0P57N6-vdihhA&dib_tag=se&keywords=molinillo%2Bcafe%2Belectrico&qid=1767082415&sprefix=molinill%2Caps%2C284&sr=8-4-spons&aref=om5vA0R6bN&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1" target="_blank" class="amazon-btn">Ver en Amazon</a>
+                <p class="desc">Mi código solo compila si hay café recién molido cerca. Es ciencia.</p>
+                <a href="https://amzn.eu/d/hW8S3pG" target="_blank" class="amazon-btn">Ver en Amazon</a>
             </div>
 
             <div class="slide">
                 <div class="img-wrapper"><img src="https://thumb.pccomponentes.com/w-530-530/articles/1075/10754247/2192-mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-comprar.jpg"></div>
                 <span class="badge">Setup</span>
                 <h3>Brazo Doble</h3>
-                <p class="desc">Para tener las pantallas flotando y ganar espacio para el teclado y la taza de café.</p>
+                <p class="desc">Para liberar la mesa y ver StackOverflow con toda la dignidad del mundo.</p>
                 <a href="https://www.pccomponentes.com/mars-gaming-marm2-soporte-dual-de-brazo-para-monitor-13-27-vesa-100x100-max-8kg-negro" target="_blank" class="amazon-btn">Ver en PCComp</a>
             </div>
 
@@ -228,16 +226,16 @@
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/61llBVIHPpL._AC_SX679_.jpg"></div>
                 <span class="badge">Setup</span>
                 <h3>Soporte Cascos</h3>
-                <p class="desc">Mis cascos necesitan un sitio fijo para no estar siempre tirados sobre la mesa.</p>
-                <a href="https://www.amazon.es/Alyvisun-Soporte-Auriculares-Ganchos-Escritorio/dp/B0C1VQJZQD/ref=sr_1_1_sspa?dib=eyJ2IjoiMSJ9.a47gTthd-LPorFhSR3AdzDW_uLvYfZKc2E85MSgcJlZxDn3CMXUnGSSsfId56S42_LLIm9cyiEwvbS49HMHWVAu884xN3JEWCQZkCgqLbGRuu6W-LuENmfQX7jcOt_ecX8GM3-pUi0lujMHeXT_bt1g3iCVUegurTWGelK7fEAxk5GuccN5ayL-5HoqKi76Nx49S49W-dlo53W4KI0e954c5I0GMS4-hUqI7smupV6tJeSraDct09I6PYgILrLY9XH_Yja8mJ1hwen9mYCF5FoPmAvP98PzPx0fr22FaqJc.xpOK7b15bIZEnqsDTYRKPlEbAlcjmDa8OORXmYsAu0M&dib_tag=se&keywords=soporte%2Bcascos%2Bescritorio&qid=1767082379&sr=8-1-spons&aref=56Vc66LeuY&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1" target="_blank" class="amazon-btn">Ver en Amazon</a>
+                <p class="desc">Un sitio digno para colgar mis cascos después de un deploy fallido.</p>
+                <a href="https://amzn.eu/d/5u8K6e9" target="_blank" class="amazon-btn">Ver en Amazon</a>
             </div>
 
             <div class="slide">
                 <div class="img-wrapper"><img src="https://m.media-amazon.com/images/I/81I5TKeM88L._AC_SY300_SX300_QL70_ML2_.jpg"></div>
                 <span class="badge">Bio</span>
                 <h3>Planta Interior</h3>
-                <p class="desc">Para purificar el aire y recordarme que la naturaleza existe fuera del modo oscuro.</p>
-                <a href="https://www.amazon.es/s?k=planta+adorno&i=kitchen&__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=32YMBFEU7DS5U&sprefix=planta+adorno%2Ckitchen%2C237&ref=nb_sb_noss_1" target="_blank" class="amazon-btn">Ver en Amazon</a>
+                <p class="desc">Para recordar que existe el mundo exterior y purificar mi setup.</p>
+                <a href="https://amzn.eu/d/7zP3m8j" target="_blank" class="amazon-btn">Ver en Amazon</a>
             </div>
         </div>
 
@@ -246,12 +244,15 @@
 
     <div class="dots" id="dots"></div>
 
-    <footer>
-        <p>&lt; Swipe left/right or use arrows /&gt;</p>
-    </footer>
-
     <script>
         lucide.createIcons();
+        
+        // Función para quitar la pantalla de bienvenida
+        function startShow() {
+            document.getElementById('splash').classList.add('hidden');
+        }
+
+        // --- LÓGICA DEL CARRUSEL ---
         let currentSlide = 0;
         const slides = document.querySelectorAll('.slide');
         const dotsContainer = document.getElementById('dots');
@@ -280,25 +281,17 @@
         }
 
         // SWIPE LOGIC
-        let xDown = null;
-        let yDown = null;
-
+        let xDown = null, yDown = null;
         document.getElementById('swipe-area').addEventListener('touchstart', (e) => {
-            xDown = e.touches[0].clientX;
-            yDown = e.touches[0].clientY;
+            xDown = e.touches[0].clientX; yDown = e.touches[0].clientY;
         }, {passive: true});
 
         document.getElementById('swipe-area').addEventListener('touchend', (e) => {
             if (!xDown || !yDown) return;
-            let xUp = e.changedTouches[0].clientX;
-            let yUp = e.changedTouches[0].clientY;
-            let xDiff = xDown - xUp;
-            let yDiff = yDown - yUp;
-
-            // Si el movimiento horizontal es mayor que el vertical, es un swipe
+            let xUp = e.changedTouches[0].clientX, yUp = e.changedTouches[0].clientY;
+            let xDiff = xDown - xUp, yDiff = yDown - yUp;
             if (Math.abs(xDiff) > Math.abs(yDiff)) {
-                if (xDiff > 50) changeSlide(1);  // Swipe izquierda
-                else if (xDiff < -50) changeSlide(-1); // Swipe derecha
+                if (xDiff > 50) changeSlide(1); else if (xDiff < -50) changeSlide(-1);
             }
             xDown = null; yDown = null;
         }, {passive: true});
